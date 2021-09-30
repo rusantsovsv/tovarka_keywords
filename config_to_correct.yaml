@@ -1,0 +1,8 @@
+# индексы
+index_tags: 'wb_tags_prod'
+
+# параметры запроса к индексу
+max_size: 10000 # максимальное количество кейвордов для записи в .txt
+
+# доступ к эластику
+connect_to_elastic: http://you_login:you_password@address:port # учетные данные для доступа к эластику
