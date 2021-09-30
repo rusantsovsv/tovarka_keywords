@@ -1,0 +1,7 @@
+config.yaml
+venv/
+txt/
+csv/
+**/.ipynb_checkpoints/*
+**/__pycache__/*
+.idea/
