@@ -205,11 +205,11 @@ def from_api_wbxsearch(kw, session, top=10):
         dict_params_query = eval(soup_pres.contents[0])
     except TypeError as ex:
         print(ex)
-        return None
+        return None, None
     
     if len(dict_params_query) == 0:
         #print("Пустой словарь с параметрами")
-        return None
+        return None, None
     
     #return dict_params_query
     # генерим ссылку на сраницу по кейворду
@@ -221,7 +221,7 @@ def from_api_wbxsearch(kw, session, top=10):
         #return query_conc, query_top_10 
     except KeyError:
         #print('Ошибка ключа')
-        return None
+        return None, None
     
     # получаем общее количество товаров по кейворду
     while True:
@@ -238,7 +238,7 @@ def from_api_wbxsearch(kw, session, top=10):
     try:
         total = json.loads(str(bs(request_total.content, 'html.parser')))['data']['total']
     except (SyntaxError, json.JSONDecodeError):
-        total = None
+        total = "-"
     
     # получаем id товаров с первой страницы
     while True:
@@ -256,14 +256,12 @@ def from_api_wbxsearch(kw, session, top=10):
         top_items = json.loads(str(bs(request_top_items.content, 'html.parser')))['data']['products'][:top]
     except (SyntaxError, json.JSONDecodeError):
         #print('Битый ответ')
-        return None
-    
-    #return total, top_items
+        return None, None
     
     # убрано ограничение для кейвордов с более 100 конкурентами
     if len(top_items) < 1:
         #print('Ничего не найдено')
-        return None
+        return None, None
     
     else:
         results_id = {}

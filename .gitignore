@@ -6,3 +6,4 @@ csv/
 **/__pycache__/*
 .idea/
 **/streamlit_app_yaml.py
+**/.env

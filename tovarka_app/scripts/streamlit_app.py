@@ -95,6 +95,11 @@ def analyze_keywords(keywords):
     for kw in stqdm(prep_kw, desc='Проход кейвордов'):
         # получаем общее количество товаров по кейворду и список топ-10
         total, id_list = from_api_wbxsearch(kw, session)
+        
+        # если ничего не пришло
+        if id_list is None:
+            st.write(f'C API Wildberries не пришли данные для {kw}')
+            continue
 
         # идем на маяк и забираем оттуда остальную стату
         data = return_from_mayak(id_list, COOKIE)
