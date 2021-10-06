@@ -1,5 +1,10 @@
+"""
+Работа через env
+"""
+
+
+import os
 import sys
-import yaml
 import base64
 from pathlib import Path
 import streamlit as st
@@ -16,15 +21,12 @@ sys.path.append(f'{PATH_MAIN_FOLDER}/scripts')
 from parsers_utils import *
 from keywords_preprocess import *
 
-# подгружаем конфиг
-with open(f'{PATH_MAIN_FOLDER}/config.yaml') as file:
-    config = yaml.safe_load(file)
 
 # задаем глобальные переменные
-INDEX_TAGS = config['index_tags']
-LOGIN_ES = config['connect_to_elastic']
-MAX_SIZE = config['max_size']
-COOKIE = config['mayak_cookie']
+INDEX_TAGS = os.environ.get('INDEX_TAGS')
+LOGIN_ES = os.environ.get('CONNECT_TO_ELASTIC')
+MAX_SIZE = int(os.environ.get('MAX_TAGS_SIZE'))
+COOKIE = os.environ.get('MAYAK_COOKIE')
 
 st.sidebar.title("Аналитика кейвордов")
 st.sidebar.text('В поле ниже нужно добавить кейворды,\nкаждое слово или словосочетание\nна отдельной строке.\nПосле этого нажать "Получить данные"')

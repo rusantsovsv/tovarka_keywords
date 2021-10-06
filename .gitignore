@@ -1,7 +1,8 @@
-**/config.yaml
+**/*.yaml
 venv/
 txt/
 csv/
 **/.ipynb_checkpoints/*
 **/__pycache__/*
 .idea/
+**/streamlit_app_yaml.py
