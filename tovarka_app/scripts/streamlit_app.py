@@ -98,7 +98,7 @@ def analyze_keywords(keywords):
         
         # если ничего не пришло
         if id_list is None:
-            st.write(f'C API Wildberries не пришли данные для {kw}')
+            st.write(f'**C API Wildberries не пришли данные для {kw}!**')
             continue
 
         # идем на маяк и забираем оттуда остальную стату
