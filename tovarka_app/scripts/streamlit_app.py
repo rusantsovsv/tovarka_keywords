@@ -24,6 +24,7 @@ with open(f'{PATH_MAIN_FOLDER}/config.yaml') as file:
 INDEX_TAGS = config['index_tags']
 LOGIN_ES = config['connect_to_elastic']
 MAX_SIZE = config['max_size']
+COOKIE = config['mayak_cookie']
 
 st.sidebar.title("Аналитика кейвордов")
 st.sidebar.text('В поле ниже нужно добавить кейворды,\nкаждое слово или словосочетание\nна отдельной строке.\nПосле этого нажать "Получить данные"')
@@ -94,7 +95,7 @@ def analyze_keywords(keywords):
         total, id_list = from_api_wbxsearch(kw, session)
 
         # идем на маяк и забираем оттуда остальную стату
-        data = return_from_mayak(id_list)
+        data = return_from_mayak(id_list, COOKIE)
 
         # считаем средние показатели
         mean_price = np.ceil(np.mean([item['price'] for item in data.values() if item['price'] is not None])).astype(
@@ -137,7 +138,7 @@ if state_button_get:
                         mime='text/csv',)
 
 # делаем кнопки для записи txt
-list_keywords = generate_kws(str_to_list_kw(st.session_state['keywords']))
+list_keywords = [keyw.replace('+', ' ') for keyw in generate_kws(str_to_list_kw(st.session_state['keywords']))]
 
 st.sidebar.title('Сохранение txt')
 st.sidebar.text('Добавьте выше в поле кейворды и нажмите\nCtrl+Enter для обновления вариантов\nсохранения.')

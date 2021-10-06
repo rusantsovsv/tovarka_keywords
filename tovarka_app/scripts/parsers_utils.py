@@ -44,7 +44,7 @@ def keyword_from_url(url):
         if q[:7] == 'search=':
             keyword = q[7:]
             
-    return keyword.replace('+', ' ')
+    return keyword
 
 
 def generate_urls(list_kw):
@@ -115,7 +115,7 @@ def link_for_kw(kw):
     return f"https://www.wildberries.ru/catalog/0/search.aspx?search={'%20'.join(kw.split())}&xsearch=true&xsearch=true&sort=popular"
 
 
-def return_from_mayak(dict_idx):
+def return_from_mayak(dict_idx, cookie):
     
     """ Получение данных о количестве продаж с mayak.bz
 
@@ -135,7 +135,7 @@ def return_from_mayak(dict_idx):
                    #'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.72 Safari/537.36',
                    #'accept-language': 'ru,en-US;q=0.9,en;q=0.8',
                    #'cookie': '__ddg1=R8HQqNdpvme15503hORM; __ddg2=RtDoAw3zERwid9B8; remember_user_token=eyJfcmFpbHMiOnsibWVzc2FnZSI6Ilcxc3pNREV5T0Ywc0lpUXlZU1F4TWlScVJsSXVZMFl4UkZKalozTlNiRlJDUjFWV2FteGxJaXdpTVRZeU56RTJPRFV5TkM0NU5ESTVNekEzSWwwPSIsImV4cCI6IjIwMzEtMDctMjRUMjM6MTU6MjQuOTQyWiIsInB1ciI6ImNvb2tpZS5yZW1lbWJlcl91c2VyX3Rva2VuIn19--602a6c517420749f84f8e1bb37dcbf8e1a3a5350; _wb_session=wKGRh8m24%2F%2F2KXc3aLY2DXc20Thbq7Kw1qWyPwMr48aWrhfTgn1JvPGWsLdA4gt7ivqepkOfPLWQS9ipJvIKE1N4zPwsfrEoR1%2BU%2B%2Fpz%2B6PIb86sAnlugewz7aMsML8XVr3kVNU%2BIXUbNJDdu%2BYUk8PtCfWNCpQQAGxvnAbWBpERaiU4gi5fIouDUAQJQaNGWtIC%2BgsTv8OlHtRet%2FafV7QtAq9adIjl9IcLXSjy3qNeQUXYiCFo2ItjrS1J7xw2D072uAxaMneU5NouSrh%2FAuPLrjmB9iDgGZemYLjdS9oel9LsWAoJWVy88UkshiS9LbOsw1Kw9EjGhpgtFnZhs12wwNiKZXUwdjkkf1T0nP5kbvKIeHjiRtvVBDIKdnhXe5ugsSz4ahvcmUMe2lTc7rxO2M1HIeILVpIrTb4FLHjs072vcqIS5Vch%2FHa4kYeMVlwpWZkhrZz1A%2FDqVltgsKWmWLYGU6dhWB%2FtA8uDbFZ8Lg7BlRhs8F07OUmTeB90U510RfN5CoVY5jdxoecFQNVCYdJVI6e8dpm8h15y4ALD1VpE88FOlYuebMQlJDRhA0NfZiuP86BZz%2Bbi7uwIQNHRVuEfxr75l4hhwBgQgpo0VkPZG%2FcGVmeKDf0dGyqhYeq5uoVyRfM0d6Pv%2FGZjcsE1CXuU3kl6c4TK846VWrMgPf0fYai%2BEL2Sd5aPLhYB74Lm%2Byp%2F8Q%3D%3D--PnNdat2cYM2CdD9W--tzwNfSWq%2FbJl9PWRFHtnQA%3D%3D',
-                   "cookie": '__ddg1=MIS5PCbHHb9LBzZibMJX; remember_user_token=eyJfcmFpbHMiOnsibWVzc2FnZSI6IlcxczJNalk0TUYwc0lpUXlZU1F4TWlSS1NWbDNNVTl1YVV4eVdWZzFhbVJxZUdwNVMwc3VJaXdpTVRZek1qazRPVGM0TXk0eU56STFNak0wSWwwPSIsImV4cCI6IjIwMzEtMDktMzBUMDg6MTY6MjMuMjcyWiIsInB1ciI6ImNvb2tpZS5yZW1lbWJlcl91c2VyX3Rva2VuIn19--ef5d2f3dfe81c190a45fd2dbcb1bd81607b909eb; _wb_session=0ds/JJWcoz0VMzl5BwYOmU91D/4eSadEfBMSOcJxXq9zpONzKOD+kSfsnUKD/lFEHEmyorphmd2qyx49GIdyuvZMp0rfWZUBmxghRK2xaggpx+Tz0lZneBurTzORY21EWh8h7DjHiohrsIQO51Beuzq234tx9SW88ph+RHPXNPBv8JHR7WBwbtYjyQH+sKgVMGUZs7hb3H5bYwiahT6PC0QHGVnVs2np7Eg611cm7wJRrG31wnmf2YFbUruZJVUoIqr7/r4yvh2Xs95kHIy734oACm9k/5/rHlxE8Q2VlKx1Ri9vepX9mOsQP5akes6pYcO/2f6s92idP3KRJY2spaQIe9brMZUrasoyds0MOB37C7n8dsUZ9d3BHLHJ2SqZOFvyUDdfGYgOxZ4=--CMTQH9v+xh/Mid7I--4uPI9K4xmeqkfOtV5Ty9xQ=='
+                   "cookie": cookie
                    }
 
         try:
