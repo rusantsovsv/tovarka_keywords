@@ -238,7 +238,7 @@ def from_api_wbxsearch(kw, session, top=10):
     try:
         total = json.loads(str(bs(request_total.content, 'html.parser')))['data']['total']
     except (SyntaxError, json.JSONDecodeError):
-        total = "-"
+        total = np.nan
     
     # получаем id товаров с первой страницы
     while True:

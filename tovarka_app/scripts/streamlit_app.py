@@ -99,6 +99,14 @@ def analyze_keywords(keywords):
         # если ничего не пришло
         if id_list is None:
             st.write(f'**C API Wildberries не пришли данные для {kw}!**')
+            df.loc[idx, 'Ключевое слово'] = re.sub('\+', ' ', kw)
+            df.loc[idx, 'Кол-во товара в списке'] = total
+            df.loc[idx, 'Ср. продажи топ 10 в мес в шт.'] = np.nan
+            df.loc[idx, 'Ср. оборот топ 10 в мес в ₽'] = np.nan
+            df.loc[idx, 'Ср. цена продажи топ 10'] = np.nan
+
+            # обновляем idx
+            idx += 1
             continue
 
         # идем на маяк и забираем оттуда остальную стату
@@ -125,7 +133,7 @@ def analyze_keywords(keywords):
     # раскладываем данные в датафрейм
 
     # записываем датафрейм в состояние сессии
-    st.session_state['df'] = df.sort_values(by='Ср. оборот топ 10 в мес в ₽', ascending=False)
+    st.session_state['df'] = df
     return
 
 
