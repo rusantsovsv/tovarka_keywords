@@ -28,6 +28,7 @@ LOGIN_ES = os.environ.get('CONNECT_TO_ELASTIC')
 MAX_SIZE = int(os.environ.get('MAX_TAGS_SIZE'))
 COOKIE = os.environ.get('MAYAK_COOKIE')
 
+st.set_page_config(page_title="WB Scraper")
 st.sidebar.title("Аналитика кейвордов")
 st.sidebar.text('В поле ниже нужно добавить кейворды,\nкаждое слово или словосочетание\nна отдельной строке.\nПосле этого нажать "Получить данные"')
 
