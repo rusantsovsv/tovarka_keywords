@@ -156,7 +156,7 @@ def return_from_mayak(dict_idx, cookie):
         except IndexError:
             dict_idx[id_name]['sales_mo'] = None
             continue
-    
+        time.sleep(3)
     return dict_idx
 
 
