@@ -26,7 +26,8 @@ from keywords_preprocess import *
 INDEX_TAGS = os.environ.get('INDEX_TAGS')
 LOGIN_ES = os.environ.get('CONNECT_TO_ELASTIC')
 MAX_SIZE = int(os.environ.get('MAX_TAGS_SIZE'))
-COOKIE = os.environ.get('MAYAK_COOKIE')
+HS_LOGIN = os.environ.get('HS_LOGIN')
+HS_PASSWORD = os.environ.get('HS_PASSWORD')
 
 st.set_page_config(page_title="WB Scraper")
 st.sidebar.title("Аналитика кейвордов")
@@ -95,10 +96,10 @@ def analyze_keywords(keywords):
 
     for kw in stqdm(prep_kw, desc='Проход кейвордов'):
         # получаем общее количество товаров по кейворду и список топ-10
-        total, id_list = from_api_wbxsearch(kw, session)
+        total, idx_dict = from_api_wbxsearch(kw, session)
         
         # если ничего не пришло
-        if id_list is None:
+        if idx_dict is None:
             st.write(f'**C API Wildberries не пришли данные для {kw}!**')
             df.loc[idx, 'Ключевое слово'] = re.sub('\+', ' ', kw)
             df.loc[idx, 'Кол-во товара в списке'] = total
@@ -111,7 +112,10 @@ def analyze_keywords(keywords):
             continue
 
         # идем на маяк и забираем оттуда остальную стату
-        data = return_from_mayak(id_list, COOKIE)
+        # data = return_from_mayak(id_list, COOKIE)
+
+        # забираем стату с huntersales
+        data = return_from_huntersales(idx_dict, login=HS_LOGIN, password=HS_PASSWORD)
 
         # считаем средние показатели
         mean_price = np.ceil(np.mean([item['price'] for item in data.values() if item['price'] is not None])).astype(

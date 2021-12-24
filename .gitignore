@@ -7,3 +7,4 @@ csv/
 .idea/
 **/streamlit_app_yaml.py
 tovarka_app/.env
+tovarka_app/scripts/huntersales_parse_test.py

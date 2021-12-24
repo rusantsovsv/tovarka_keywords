@@ -299,3 +299,46 @@ def str_to_list_kw(str_keywords):
     list_kw = [keyword.lower() for keyword in str_keywords.split('\n') if len(keyword) > 0]
     
     return list_kw
+
+
+def return_from_huntersales(dict_idx, login, password):
+    """
+    Функция для получения месячных продаж и цен для преданного списка id
+
+    Args:
+        login (str): логин к huntersales.
+        password (str): пароль к huntersales.
+        dict_idx (dict): словарь с артикулами товаров и возможно записанными ценами.
+
+    Returns:
+        dict: словарь с ключами id и значениями price и sales.
+    """
+
+    # создаем новный объект, проверяем, чтобы id были str
+    data_hs = {str(key): value for key, value in dict_idx.items()}
+
+    headers = {'accept': '*/*',
+               'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36'}
+
+    # создаем сессию
+    s = requests.Session()
+
+    # создаем переменную с личными данными
+    data = {'email': login, 'password': password}
+    # посылаем запрос на выполнение входа
+    s.post('https://huntersales.ru/api/auth/login', data=data)
+    item_data = s.get(f"https://huntersales.ru/api/products/ids?ids={','.join([idx for idx in data_hs.keys()])}", headers=headers)
+    #print(item_data.status_code)
+    if item_data.status_code == 200:
+        # проходим по каждому товару
+        for item in json.loads(item_data.text):
+            data_hs[str(item['id'])]['sales_mo'] = item['lastMonthSalesAmount']
+        # выходим из цикла
+    else:
+        # спим 20 минут и возобновляем работу
+        print(f'Кажется, достигнут лимит. Код ошибки {item_data.status_code}.')
+        time.sleep(1200)
+        return None
+
+    # пересоберем и отправим словарь
+    return data_hs
