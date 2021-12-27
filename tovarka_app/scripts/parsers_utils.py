@@ -335,9 +335,6 @@ def return_from_huntersales(dict_idx, login, password):
             data_hs[str(item['id'])]['sales_mo'] = item['lastMonthSalesAmount']
         # выходим из цикла
     else:
-        # спим 20 минут и возобновляем работу
-        print(f'Кажется, достигнут лимит. Код ошибки {item_data.status_code}.')
-        time.sleep(1200)
         return None
 
     # пересоберем и отправим словарь

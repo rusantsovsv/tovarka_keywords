@@ -74,7 +74,7 @@ def convert_df(df):
 def analyze_keywords(keywords):
 
     # подгружаем данные, добавим текстовое описание
-    data_load_state = st.text('Получаю данные с WB и Mayak.bz...')
+    data_load_state = st.text('Получаю данные с WB и HunterSales...')
 
     list_keywords = str_to_list_kw(st.session_state['keywords'])
 
@@ -116,6 +116,10 @@ def analyze_keywords(keywords):
 
         # забираем стату с huntersales
         data = return_from_huntersales(idx_dict, login=HS_LOGIN, password=HS_PASSWORD)
+
+        if data is None:
+            st.text(f'Достигнут лимит запросов к HS.')
+            return
 
         # считаем средние показатели
         mean_price = np.ceil(np.mean([item['price'] for item in data.values() if item['price'] is not None])).astype(
