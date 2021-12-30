@@ -73,6 +73,8 @@ def convert_df(df):
 
 def analyze_keywords(keywords):
 
+    limit_rate = True # показывает, что запросы доступны
+
     # подгружаем данные, добавим текстовое описание
     data_load_state = st.text('Получаю данные с WB и HunterSales...')
 
@@ -118,8 +120,21 @@ def analyze_keywords(keywords):
         data = return_from_huntersales(idx_dict, login=HS_LOGIN, password=HS_PASSWORD)
 
         if data is None:
-            st.text(f'Достигнут лимит запросов к HS.')
-            return
+            # выведем сообщение только один раз
+            if limit_rate:
+                #st.write(f'**Достигнут лимит запросов к HS. Лимит обнулится в 00:00 по МСК.**')
+                st.markdown(f'<p style="font-family:Courier; color:Red; font-size: 16px;">Достигнут лимит запросов к HS. Лимит обнулится в 00:00 по МСК.</p>', unsafe_allow_html=True)
+                limit_rate = False
+
+            df.loc[idx, 'Ключевое слово'] = re.sub('\+', ' ', kw)
+            df.loc[idx, 'Кол-во товара в списке'] = total
+            df.loc[idx, 'Ср. продажи топ 10 в мес в шт.'] = np.nan
+            df.loc[idx, 'Ср. оборот топ 10 в мес в ₽'] = np.nan
+            df.loc[idx, 'Ср. цена продажи топ 10'] = np.nan
+
+            # обновляем idx
+            idx += 1
+            continue
 
         # считаем средние показатели
         mean_price = np.ceil(np.mean([item['price'] for item in data.values() if item['price'] is not None])).astype(
