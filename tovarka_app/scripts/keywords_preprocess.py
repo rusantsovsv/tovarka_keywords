@@ -106,7 +106,11 @@ def return_all_kw(keyword, index_tags, login_es, max_size):
     query = query_generate(keyword, max_size)
         
     # получаем результаты
-    result = el.universal_query(index_tags, login_es, query)['hits']['hits']
+    answ = el.universal_query(index_tags, login_es, query)
+    if answ is None:
+        result = [keyword]
+    else:
+        result = answ['hits']['hits']
     
     return [keyword['_source']['tag'] for keyword in result]
 

@@ -8,7 +8,13 @@ import sys
 import base64
 from pathlib import Path
 import streamlit as st
+import streamlit.legacy_caching
 from stqdm import stqdm
+
+import logging
+
+logging.basicConfig(filename='example.log')
+logging.debug('This message should go to the log file')
 
 
 PATH_MAIN_FOLDER = str(Path(__file__).parent.absolute().parents[0])
@@ -32,7 +38,6 @@ HS_PASSWORD = os.environ.get('HS_PASSWORD')
 st.set_page_config(page_title="WB Scraper")
 st.sidebar.title("Аналитика кейвордов")
 st.sidebar.text('В поле ниже нужно добавить кейворды,\nкаждое слово или словосочетание\nна отдельной строке.\nПосле этого нажать "Получить данные"')
-
 
 # добавим возможность записать кейворды
 add_keyword_fields = st.sidebar.text_area(
@@ -72,6 +77,7 @@ def convert_df(df):
 
 
 def analyze_keywords(keywords):
+    streamlit.legacy_caching.clear_cache()
 
     limit_rate = True # показывает, что запросы доступны
 
@@ -137,10 +143,10 @@ def analyze_keywords(keywords):
             continue
 
         # считаем средние показатели
-        mean_price = np.ceil(np.mean([item['price'] for item in data.values() if item['price'] is not None])).astype(
+        mean_price = np.ceil(np.mean([item['price'] for item in data.values() if ('price' in item.keys()) and item['price'] is not None])).astype(
             int)
         mean_sales = np.ceil(
-            np.mean([item['sales_mo'] for item in data.values() if item['sales_mo'] is not None])).astype(int)
+            np.mean([item['sales_mo'] for item in data.values() if ('sales_mo' in item.keys()) and (item['sales_mo'] is not None)])).astype(int)
         mean_turnover = mean_price * mean_sales
 
         # пишем в таблицу

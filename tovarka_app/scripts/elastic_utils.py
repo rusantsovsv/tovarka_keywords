@@ -1,3 +1,4 @@
+
 import time
 from elasticsearch import Elasticsearch
 from elasticsearch import ElasticsearchException
@@ -17,25 +18,24 @@ def get_data_from_elastic(login, query, func='search'):
 
     """
     
-    while True:
-        es = Elasticsearch(login, timeout=180)
-        try:
-            if func == 'count':
-                count_query = {}
-                count_query['index'] = query['index']
-                count_query['body'] = {key: value for key, value in query['body'].items() if key not in ['size', 'sort']}
-                #print(count_query)
-                elastic_answ = es.count(**count_query)
-            else:
-                elastic_answ = es.search(**query)
-            return elastic_answ
-        except ElasticsearchException as ex:
-            # ждем 5 секунд и начинаем сначала
-            print(f'Ошибка БД {ex}')
-            time.sleep(5)
-            continue
 
-            
+    es = Elasticsearch(login, timeout=180)
+    try:
+        if func == 'count':
+            count_query = {}
+            count_query['index'] = query['index']
+            count_query['body'] = {key: value for key, value in query['body'].items() if key not in ['size', 'sort']}
+            #print(count_query)
+            elastic_answ = es.count(**count_query)
+        else:
+            elastic_answ = es.search(**query)
+        return elastic_answ
+    except ElasticsearchException as ex:
+        # ждем 5 секунд и начинаем сначала
+        print(f'Ошибка БД {ex}')
+        return None
+
+
 def universal_query(index, login, query, func='search'):
     
     """
