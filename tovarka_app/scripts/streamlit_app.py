@@ -8,8 +8,8 @@ import sys
 import base64
 from pathlib import Path
 import streamlit as st
-import streamlit.legacy_caching
 from stqdm import stqdm
+import streamlit_autorefresh
 
 import logging
 
@@ -77,7 +77,6 @@ def convert_df(df):
 
 
 def analyze_keywords(keywords):
-    streamlit.legacy_caching.clear_cache()
 
     limit_rate = True # показывает, что запросы доступны
 
@@ -85,9 +84,6 @@ def analyze_keywords(keywords):
     data_load_state = st.text('Получаю данные с WB и HunterSales...')
 
     list_keywords = str_to_list_kw(st.session_state['keywords'])
-
-    # создаем сессию
-    session = requests.Session()
 
     # подготавливаем датафрейм
     df = pd.DataFrame(columns=['Ключевое слово',
@@ -104,7 +100,7 @@ def analyze_keywords(keywords):
 
     for kw in stqdm(prep_kw, desc='Проход кейвордов'):
         # получаем общее количество товаров по кейворду и список топ-10
-        total, idx_dict = from_api_wbxsearch(kw, session)
+        total, idx_dict = from_api_wbxsearch(kw)
         
         # если ничего не пришло
         if idx_dict is None:

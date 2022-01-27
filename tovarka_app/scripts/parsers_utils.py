@@ -160,13 +160,12 @@ def return_from_mayak(dict_idx, cookie):
     return dict_idx
 
 
-def from_api_wbxsearch(kw, session, top=10):
+def from_api_wbxsearch(kw, top=10):
     
     """ Получение id и позиций из api wbxsearch
 
     Args:
         kw (str): кейворд.
-        session (requests.sessions.Session): сессия запроса.
         top (int): количество топов для дальнеших расчетов.
 
     Returns:
@@ -186,102 +185,103 @@ def from_api_wbxsearch(kw, session, top=10):
     
     # получаем запрос из url
     complite_query = f'https://wbxsearch.wildberries.ru/exactmatch/v2/common?query={kw}&xsearch=true&xsearch=true&sort=popular'
-    
-    # эмулируем открытие страниц в браузере
-    while True:
+
+    with requests.Session() as session:
+        # эмулируем открытие страниц в браузере
+        while True:
+            try:
+                request = session.get(complite_query, headers=headers_filter)
+                break
+            except requests.exceptions.RequestException as e:
+                # ждем 10 секунд
+                print(f' Ошибка --- {e}')
+                time.sleep(10)
+                continue
+
+        soup_pres = bs(request.content, 'html.parser')
+
+        # получаем данные для генерации ссылки
         try:
-            request = session.get(complite_query, headers=headers_filter)
-            break
-        except requests.exceptions.RequestException as e:
-            # ждем 10 секунд
-            print(f' Ошибка --- {e}')
-            time.sleep(10)
-            continue
-    
-    soup_pres = bs(request.content, 'html.parser')
-    
-    # получаем данные для генерации ссылки
-    try:
-        dict_params_query = eval(soup_pres.contents[0])
-    except TypeError as ex:
-        print(ex)
-        return None, None
-    
-    if len(dict_params_query) == 0:
-        #print("Пустой словарь с параметрами")
-        return None, None
-    
-    #return dict_params_query
-    # генерим ссылку на сраницу по кейворду
-    try:
-        # генерим ссылку, из которой заберем количество конкуретнов
-        query_conc = f"https://wbxcatalog-ru.wildberries.ru/{dict_params_query['shardKey']}/filters?filters={dict_params_query['filters']}&{xinfo}&{dict_params_query['query']}"
-        # генерим ссылку, из которой заберем топ-10 id
-        query_top_items = f"https://wbxcatalog-ru.wildberries.ru/{dict_params_query['shardKey']}/catalog?{xinfo}&{dict_params_query['query']}&search={urllib.parse.quote(kw, safe='')}"
-        #return query_conc, query_top_10 
-    except KeyError:
-        #print('Ошибка ключа')
-        return None, None
-    
-    # получаем общее количество товаров по кейворду
-    while True:
+            dict_params_query = eval(soup_pres.contents[0])
+        except TypeError as ex:
+            print(ex)
+            return None, None
+
+        if len(dict_params_query) == 0:
+            #print("Пустой словарь с параметрами")
+            return None, None
+
+
+        # генерим ссылку на сраницу по кейворду
         try:
-            request_total = session.get(query_conc, headers=headers_filter)
-            break
-        except requests.exceptions.RequestException as e:
-            # ждем 10 секунд
-            print(f' Ошибка --- {e}')
-            time.sleep(10)
-            continue
-    
-    # получаем общее количество товаров по кейворду
-    try:
-        total = json.loads(str(bs(request_total.content, 'html.parser')))['data']['total']
-    except (SyntaxError, json.JSONDecodeError):
-        total = np.nan
-    
-    # получаем id товаров с первой страницы
-    while True:
+            # генерим ссылку, из которой заберем количество конкуретнов
+            query_conc = f"https://wbxcatalog-ru.wildberries.ru/{dict_params_query['shardKey']}/filters?filters={dict_params_query['filters']}&{xinfo}&{dict_params_query['query']}"
+            # генерим ссылку, из которой заберем топ-10 id
+            query_top_items = f"https://wbxcatalog-ru.wildberries.ru/{dict_params_query['shardKey']}/catalog?{xinfo}&{dict_params_query['query']}&search={urllib.parse.quote(kw, safe='')}"
+            #return query_conc, query_top_10
+        except KeyError:
+            #print('Ошибка ключа')
+            return None, None
+
+        # получаем общее количество товаров по кейворду
+        while True:
+            try:
+                request_total = session.get(query_conc, headers=headers_filter)
+                break
+            except requests.exceptions.RequestException as e:
+                # ждем 10 секунд
+                print(f' Ошибка --- {e}')
+                time.sleep(10)
+                continue
+
+        # получаем общее количество товаров по кейворду
         try:
-            request_top_items = session.get(query_top_items, headers=headers_filter)
-            break
-        except requests.exceptions.RequestException as e:
-            # ждем 10 секунд
-            print(f' Ошибка --- {e}')
-            time.sleep(10)
-            continue
-    
-    # получаем список с товарами
-    try:
-        top_items = json.loads(str(bs(request_top_items.content, 'html.parser')))['data']['products'][:top]
-    except (SyntaxError, json.JSONDecodeError):
-        #print('Битый ответ')
-        return None, None
-    
-    # убрано ограничение для кейвордов с более 100 конкурентами
-    if len(top_items) < 1:
-        #print('Ничего не найдено')
-        return None, None
-    
-    else:
-        results_id = {}
-        for no, product in enumerate(top_items):
-            
-            # записываем словарь под id продукта
-            results_id[product['id']] = {}
-            
-            # записываем размер скидки
-            if 'sale' in product:
-                results_id[product['id']]['discount'] = int(product['sale'])
-                
-            # записываем цену, убираем 2 последних нуля
-            if 'salePriceU' in product:
-                results_id[product['id']]['price'] = int(str(product['salePriceU'])[:-2])
-                
-            # добавляем позиции
-            results_id[product['id']]['position'] = no + 1
-    
-    return total, results_id
+            total = json.loads(str(bs(request_total.content, 'html.parser')))['data']['total']
+        except (SyntaxError, json.JSONDecodeError):
+            total = np.nan
+
+        # получаем id товаров с первой страницы
+        while True:
+            try:
+                request_top_items = session.get(query_top_items, headers=headers_filter)
+                break
+            except requests.exceptions.RequestException as e:
+                # ждем 10 секунд
+                print(f' Ошибка --- {e}')
+                time.sleep(10)
+                continue
+
+        # получаем список с товарами
+        try:
+            top_items = json.loads(str(bs(request_top_items.content, 'html.parser')))['data']['products'][:top]
+        except (SyntaxError, json.JSONDecodeError):
+            #print('Битый ответ')
+            return None, None
+
+        # убрано ограничение для кейвордов с более 100 конкурентами
+        if len(top_items) < 1:
+            #print('Ничего не найдено')
+            return None, None
+
+        else:
+            results_id = {}
+            for no, product in enumerate(top_items):
+
+                # записываем словарь под id продукта
+                results_id[product['id']] = {}
+
+                # записываем размер скидки
+                if 'sale' in product:
+                    results_id[product['id']]['discount'] = int(product['sale'])
+
+                # записываем цену, убираем 2 последних нуля
+                if 'salePriceU' in product:
+                    results_id[product['id']]['price'] = int(str(product['salePriceU'])[:-2])
+
+                # добавляем позиции
+                results_id[product['id']]['position'] = no + 1
+
+        return total, results_id
 
 
 def str_to_list_kw(str_keywords):
@@ -320,22 +320,20 @@ def return_from_huntersales(dict_idx, login, password):
     headers = {'accept': '*/*',
                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.108 Safari/537.36'}
 
-    # создаем сессию
-    s = requests.Session()
+    with requests.Session() as s:
+        # создаем переменную с личными данными
+        data = {'email': login, 'password': password}
+        # посылаем запрос на выполнение входа
+        s.post('https://huntersales.ru/api/auth/login', data=data)
+        item_data = s.get(f"https://huntersales.ru/api/products/ids?ids={','.join([idx for idx in data_hs.keys()])}", headers=headers)
+        #print(item_data.status_code)
+        if item_data.status_code == 200:
+            # проходим по каждому товару
+            for item in json.loads(item_data.text):
+                data_hs[str(item['id'])]['sales_mo'] = item['lastMonthSalesAmount']
+            # выходим из цикла
+        else:
+            return None
 
-    # создаем переменную с личными данными
-    data = {'email': login, 'password': password}
-    # посылаем запрос на выполнение входа
-    s.post('https://huntersales.ru/api/auth/login', data=data)
-    item_data = s.get(f"https://huntersales.ru/api/products/ids?ids={','.join([idx for idx in data_hs.keys()])}", headers=headers)
-    #print(item_data.status_code)
-    if item_data.status_code == 200:
-        # проходим по каждому товару
-        for item in json.loads(item_data.text):
-            data_hs[str(item['id'])]['sales_mo'] = item['lastMonthSalesAmount']
-        # выходим из цикла
-    else:
-        return None
-
-    # пересоберем и отправим словарь
-    return data_hs
+        # пересоберем и отправим словарь
+        return data_hs
