@@ -9,7 +9,6 @@ import base64
 from pathlib import Path
 import streamlit as st
 from stqdm import stqdm
-import streamlit_autorefresh
 
 import logging
 
